@@ -55,7 +55,7 @@ def handle_event(event):
         print(post_text)
         print('')
         # Create a tweet
-        api.update_status_with_media(filename='./resources/unisocks.png', status=post_text)
+        api.update_status(post_text)
 
 
 # asynchronous defined function to loop
