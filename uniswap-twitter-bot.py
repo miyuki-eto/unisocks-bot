@@ -1,14 +1,19 @@
-# import the following dependencies
 import json
 from web3 import Web3
-# from ens.auto import ns
 from ens import ENS
 import asyncio
 import os
 from dotenv import load_dotenv
-from pprint import pprint
+import tweepy
 
 load_dotenv()
+
+# Authenticate to Twitter
+auth = tweepy.OAuthHandler(os.getenv('CONSUMER_KEY'), os.getenv('CONSUMER_SECRET'))
+auth.set_access_token(os.getenv('ACCESS_TOKEN'), os.getenv('ACCESS_TOKEN_SECRET'))
+
+# Create API object
+api = tweepy.API(auth)
 
 # blockchain connection
 web3 = Web3(Web3.HTTPProvider(os.getenv('INFURA_KEY')))
@@ -45,10 +50,12 @@ def handle_event(event):
     ens_rec = ns.name(recipient)
     recipient = ens_rec if ens_rec is not None else trim_address(recipient)
 
-    if amt0 > 0:
+    if amt0 >= 0.01:
         post_text = '{0} has puchased {1} SOCKS for {2} ETH \n\nhttps://etherscan.io/tx/{3} \nhttps://unisocks.exchange/ \n#unisocks'.format(recipient, float(amt0), float(amt1), tx)
         print(post_text)
         print('')
+        # Create a tweet
+        api.update_status_with_media(filename='./resources/unisocks.png', status=post_text)
 
 
 # asynchronous defined function to loop
@@ -83,4 +90,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print('running unisocks twitter bot')
     main()
