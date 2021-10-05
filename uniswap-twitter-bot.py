@@ -44,18 +44,24 @@ def trim_address(address):
 def handle_event(event):
     dictionary = json.loads(Web3.toJSON(event))
     tx = dictionary['transactionHash']
-    amt0 = 0-(dictionary['args']['amount0'] / (10 ** 18))
-    amt1 = (dictionary['args']['amount1'] / (10 ** 18))
-    recipient = dictionary['args']['recipient']
-    ens_rec = ns.name(recipient)
-    recipient = ens_rec if ens_rec is not None else trim_address(recipient)
+    print(tx)
+    if 'amount0' in dictionary['args']:
+        amt0 = 0-(dictionary['args']['amount0'] / (10 ** 18))
+        if amt0 >= 0.01:
+            amt1 = (dictionary['args']['amount1'] / (10 ** 18))
+            recipient = dictionary['args']['recipient']
+            ens_rec = ns.name(recipient)
+            recipient = ens_rec if ens_rec is not None else trim_address(recipient)
 
-    if amt0 >= 0.01:
-        post_text = '{0} has puchased {1} SOCKS for {2} ETH \n\nhttps://etherscan.io/tx/{3} \nhttps://unisocks.exchange/ \n#unisocks'.format(recipient, float(amt0), float(amt1), tx)
-        print(post_text)
-        print('')
-        # Create a tweet
-        api.update_status(post_text)
+            post_text = '{0} has puchased {1} SOCKS for {2} ETH \n\nhttps://etherscan.io/tx/{3} \nhttps://unisocks.exchange/ \n#unisocks'.format(recipient, float(amt0), float(amt1), tx)
+            print(post_text)
+            # Create a tweet
+            api.update_status(post_text)
+        else:
+            print('amount less than threshold')
+    else:
+        print('no amount')
+    print('')
 
 
 # asynchronous defined function to loop
